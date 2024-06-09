@@ -238,23 +238,7 @@ static U32 _step1(sqlite3* db, bool bAvailable)
 		U8 pk[AI_PUB_KEY_LENGTH];
 		U8 hash[AI_HASH256_LENGTH] = { 0 };
 		U8 pkHex[AI_PUB_KEY_LENGTH + AI_PUB_KEY_LENGTH + 1] = { 0 };
-#if 0
-		U8 datPath[1024] = { 0 };
-		U32 utf8len = 0;
-		U32 utf16len = wcslen(g_cachePath);
-		U32 status = wt_UTF16ToUTF8((U16*)g_cachePath, utf16len, NULL, &utf8len);
-		if (status == WT_OK && utf8len)
-		{
-			status = wt_UTF16ToUTF8((U16*)g_cachePath, utf16len, datPath, NULL);
-			datPath[utf8len] = '\0';
-		}
-		else
-		{
-			datPath[0] = 'c';
-			datPath[1] = ':';
-			datPath[2] = '\0';
-		}
-#endif 
+
 		if (GenerateKeyPair(sk, pk, hash) != WT_OK) /* generate key pair failed. It is rare */
 		{
 			GenerateRandom32Bytes(sk);

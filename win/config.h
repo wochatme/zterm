@@ -147,6 +147,8 @@ typedef struct ZXConfig
 #define KB_DATA_PAYLOAD    (4 + 4 + 32)
 
 #define ZX_KBNODE_NONELEAF  0x0100
+#define ZX_KBNODE_PROCESSE  0x0200
+
 typedef struct ZXKBTree
 {
     ZXKBTree* next;

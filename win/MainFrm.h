@@ -402,42 +402,91 @@ public:
 	{
 		if (node && htiParent)
 		{
+			int idx;
 			HTREEITEM hti;
-			if (wcslen(node->title) > 0)
+			ZXKBTree* p;
+			TVITEM tvItem = { 0 };
+
+			p = node;
+			if ((p->status & ZX_KBNODE_PROCESSE) == 0) // this node is not processed
 			{
-				TVITEM tvItem = { 0 };
-				tvItem.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
-				hti = m_viewTree.InsertItem(TVIF_TEXT | TVIF_STATE, node->title, 0, 0, 0, 0, 0, htiParent, nullptr);
-				if (hti)
+				p->status |= ZX_KBNODE_PROCESSE; // mark this node had been processed
+				if (p->title[0])
 				{
-					int idx = 0;
-					if (node->docId)
+					tvItem.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+					hti = m_viewTree.InsertItem(TVIF_TEXT | TVIF_STATE, p->title, 0, 0, 0, 0, 0, htiParent, nullptr);
+					if (hti)
 					{
-						if ((node->status & 0xFF) == ZX_KBNODE_WEB)
-							idx = 3;
-						else
+						idx = 0;
+						if (p->docId)
 						{
-							if ((node->status & 0xFF) == ZX_KBNODE_TXT)
-								idx = 1;
-							if ((node->status & 0xFF) == ZX_KBNODE_RDO)
-								idx = 2;
+							if ((p->status & 0xFF) == ZX_KBNODE_WEB)
+								idx = 3;
+							else
+							{
+								if ((p->status & 0xFF) == ZX_KBNODE_TXT)
+									idx = 1;
+								if ((p->status & 0xFF) == ZX_KBNODE_RDO)
+									idx = 2;
+							}
+						}
+
+						tvItem.hItem = hti;
+						tvItem.iImage = idx;
+						tvItem.iSelectedImage = idx;
+						m_viewTree.SetItem(&tvItem);
+						m_viewTree.SetItemData(hti, p->docId);
+
+						if (p->child)
+						{
+							AddKBNode(p->child, hti);
 						}
 					}
-
-					tvItem.hItem = hti;
-					tvItem.iImage = idx; 
-					tvItem.iSelectedImage = idx; 
-					m_viewTree.SetItem(&tvItem);
-					m_viewTree.SetItemData(hti, node->docId);
-					if (node->child)
-					{
-						AddKBNode(node->child, hti);
-					}
 				}
-			}
-			if (node->next)
-			{
-				AddKBNode(node->next, htiParent);
+
+				p = node->next;
+				while (p)
+				{
+					if ((p->status & ZX_KBNODE_PROCESSE) == 0)
+					{
+						if (p->status & ZX_KBNODE_NONELEAF)
+						{
+							ATLASSERT(p->docId == 0);
+							AddKBNode(p, htiParent);
+						}
+						else // it is leaf node
+						{
+							p->status |= ZX_KBNODE_PROCESSE; // mark this node had been processed
+							if (p->title[0])
+							{
+								tvItem.mask = TVIF_IMAGE | TVIF_SELECTEDIMAGE;
+								hti = m_viewTree.InsertItem(TVIF_TEXT | TVIF_STATE, p->title, 0, 0, 0, 0, 0, htiParent, nullptr);
+								if (hti)
+								{
+									idx = 0;
+									if (p->docId)
+									{
+										if ((p->status & 0xFF) == ZX_KBNODE_WEB)
+											idx = 3;
+										else
+										{
+											if ((p->status & 0xFF) == ZX_KBNODE_TXT)
+												idx = 1;
+											if ((p->status & 0xFF) == ZX_KBNODE_RDO)
+												idx = 2;
+										}
+									}
+									tvItem.hItem = hti;
+									tvItem.iImage = idx;
+									tvItem.iSelectedImage = idx;
+									m_viewTree.SetItem(&tvItem);
+									m_viewTree.SetItemData(hti, p->docId);
+								}
+							}
+						}
+					}
+					p = p->next;
+				}
 			}
 		}
 	}
