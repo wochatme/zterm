@@ -271,42 +271,7 @@ static U32 _step1(sqlite3* db, bool bAvailable)
 			sqlite3_finalize(stmt);
 			goto _exit_LoadConf;
 		}
-#if 0
-		/* table D: document table */
-		rc = sqlite3_prepare_v2(db,
-			(const char*)"CREATE TABLE d(di CHAR(16) PRIMARY KEY,dt INTEGER,ft CHAR(1),tx TEXT)",
-			-1, &stmt, NULL);
-		if (SQLITE_OK != rc) goto _exit_LoadConf;
-		rc = sqlite3_step(stmt);
-		if (SQLITE_DONE != rc)
-		{
-			sqlite3_finalize(stmt);
-			goto _exit_LoadConf;
-		}
 
-		/* table T: tree of knowledge base */
-		rc = sqlite3_prepare_v2(db,
-			(const char*)"CREATE TABLE t(id INTEGER PRIMARY KEY AUTOINCREMENT,dt INTEGER,ip INTEGER,di CHAR(16),tx VARCHAR(256))",
-			-1, &stmt, NULL);
-		if (SQLITE_OK != rc) goto _exit_LoadConf;
-		rc = sqlite3_step(stmt);
-		if (SQLITE_DONE != rc)
-		{
-			sqlite3_finalize(stmt);
-			goto _exit_LoadConf;
-		}
-
-		rc = sqlite3_prepare_v2(db,
-			(const char*)"CREATE UNIQUE INDEX t_di ON t(di)",
-			-1, &stmt, NULL);
-		if (SQLITE_OK != rc) goto _exit_LoadConf;
-		rc = sqlite3_step(stmt);
-		if (SQLITE_DONE != rc)
-		{
-			sqlite3_finalize(stmt);
-			goto _exit_LoadConf;
-		}
-#endif 
 		rc = sqlite3_prepare_v2(db,
 			(const char*)"CREATE TABLE l(id INTEGER PRIMARY KEY AUTOINCREMENT,dt INTEGER,tx TEXT)",
 			-1, &stmt, NULL);
@@ -341,27 +306,6 @@ static U32 _step1(sqlite3* db, bool bAvailable)
 			sqlite3_finalize(stmt);
 		}
 
-#if 0
-		rc = sqlite3_prepare_v2(db, (const char*)"INSERT INTO t(dt,ip,tx) VALUES((?),0,'Cloud Knowledge Base')", -1, &stmt, NULL);
-		if (SQLITE_OK == rc)
-		{
-			S64 dt = GetCurrentUTCTime64();
-			rc = sqlite3_bind_int64(stmt, 1, dt);
-			if (SQLITE_OK == rc)
-				rc = sqlite3_step(stmt);
-			sqlite3_finalize(stmt);
-		}
-
-		rc = sqlite3_prepare_v2(db, (const char*)"INSERT INTO t(dt,ip,tx) VALUES((?),0,'Local Knowledge Base')", -1, &stmt, NULL);
-		if (SQLITE_OK == rc)
-		{
-			S64 dt = GetCurrentUTCTime64();
-			rc = sqlite3_bind_int64(stmt, 1, dt);
-			if (SQLITE_OK == rc)
-				rc = sqlite3_step(stmt);
-			sqlite3_finalize(stmt);
-		}
-#endif 
 		sprintf_s((char*)sql, SQL_STMT_MAX_LEN,
 			"INSERT INTO c(id,bo,nm) VALUES(%d,(?),'Private Key')", ZX_PARAM_AI_SEC_KEY);
 		rc = sqlite3_prepare_v2(db, (const char*)sql, -1, &stmt, NULL);
